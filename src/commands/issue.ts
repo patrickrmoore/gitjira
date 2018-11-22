@@ -2,7 +2,14 @@ import { Command, flags } from "@oclif/command";
 import JiraApi from "../JiraApi";
 
 export default class Issue extends Command {
-  static description = "describe the command here";
+  static description = "Get a single issue";
+
+  static examples = [
+    `$ gj issue HB-4820
+HB-4820 (Status: In Development)
+When a user deletes an item, they should get a confirmation box 
+`
+  ];
 
   static flags = {
     help: flags.help({ char: "h" })
@@ -20,7 +27,9 @@ export default class Issue extends Command {
     try {
       const response = await JiraApi.getIssue(args.key);
       this.log(
-        JSON.stringify(`${response.data.key} - ${response.data.fields.summary}`)
+        `${response.data.key} (Status: ${response.data.fields.status.name})\n${
+          response.data.fields.summary
+        }`
       );
     } catch (error) {
       this.error(`${error.name} - ${error.message}`);

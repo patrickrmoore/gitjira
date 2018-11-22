@@ -4,6 +4,12 @@ import JiraApi from "../JiraApi";
 export default class Query extends Command {
   static description = "Query Jira issues";
 
+  static examples = [
+    `$ gj query -v "2018.1"`,
+    `$ gj query -m 10 -s 5`,
+    `$ gj query -p HB`
+  ];
+
   static flags = {
     help: flags.help({ char: "h" }),
     maxResults: flags.integer({
@@ -11,7 +17,10 @@ export default class Query extends Command {
       description: "limit to [n] results"
     }),
     startAt: flags.integer({ char: "s", description: "index to start at" }),
-    fixVersion: flags.string({ char: "v", description: "fix version" }),
+    fixVersion: flags.string({
+      char: "v",
+      description: "fix version (enclosed in quotes)"
+    }),
     fields: flags.string({
       char: "f",
       description: "list of fields to return (comma delimited)"

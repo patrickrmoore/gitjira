@@ -4,6 +4,14 @@ import config from "../configstore";
 export default class Config extends Command {
   static description = "Get/set config values";
 
+  static examples = [
+    `$ gj config username
+username=patrick.moore@hcss.com`,
+    `$ gj config username elise.ingram@hcss.com
+username=elise.ingram@hcss.com
+(was patrick.moore@hcss.com)`
+  ];
+
   static flags = {
     help: flags.help({ char: "h" }),
     all: flags.boolean({ char: "a" })
