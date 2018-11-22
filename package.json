@@ -1,7 +1,7 @@
 {
   "name": "jiragit",
   "description": "CLI to create branches from Jira issues",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "author": "Patrick Moore",
   "bin": {
     "gj": "./bin/run"

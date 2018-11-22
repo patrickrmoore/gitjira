@@ -19,7 +19,7 @@ $ npm install -g jiragit
 $ gj COMMAND
 running command...
 $ gj (-v|--version|version)
-jiragit/0.0.0 win32-x64 node-v8.9.0
+jiragit/0.0.1 win32-x64 node-v8.9.0
 $ gj --help [COMMAND]
 USAGE
   $ gj COMMAND
@@ -28,47 +28,32 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`gj config [FILE]`](#gj-config-file)
-* [`gj hello [FILE]`](#gj-hello-file)
+* [`gj config [KEY] [VALUE]`](#gj-config-key-value)
 * [`gj help [COMMAND]`](#gj-help-command)
 * [`gj issue [KEY]`](#gj-issue-key)
 * [`gj query [KEY]`](#gj-query-key)
 
-## `gj config [FILE]`
+## `gj config [KEY] [VALUE]`
 
-describe the command here
-
-```
-USAGE
-  $ gj config [FILE]
-
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-```
-
-_See code: [src\commands\config.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.0/src\commands\config.ts)_
-
-## `gj hello [FILE]`
-
-describe the command here
+Get/set config values
 
 ```
 USAGE
-  $ gj hello [FILE]
+  $ gj config [KEY] [VALUE]
 
 OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
+  -a, --all
+  -h, --help  show CLI help
 
-EXAMPLE
-  $ gj hello
-  hello world from ./src/hello.ts!
+EXAMPLES
+  $ gj config username
+  username=patrick.moore@hcss.com
+  $ gj config username elise.ingram@hcss.com
+  username=elise.ingram@hcss.com
+  (was patrick.moore@hcss.com)
 ```
 
-_See code: [src\commands\hello.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.0/src\commands\hello.ts)_
+_See code: [src\commands\config.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.1/src\commands\config.ts)_
 
 ## `gj help [COMMAND]`
 
@@ -89,7 +74,7 @@ _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.4
 
 ## `gj issue [KEY]`
 
-describe the command here
+Get a single issue
 
 ```
 USAGE
@@ -97,9 +82,14 @@ USAGE
 
 OPTIONS
   -h, --help  show CLI help
+
+EXAMPLE
+  $ gj issue HB-4820
+  HB-4820 (Status: In Development)
+  When a user deletes an item, they should get a confirmation box
 ```
 
-_See code: [src\commands\issue.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.0/src\commands\issue.ts)_
+_See code: [src\commands\issue.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.1/src\commands\issue.ts)_
 
 ## `gj query [KEY]`
 
@@ -115,8 +105,13 @@ OPTIONS
   -m, --maxResults=maxResults  limit to [n] results
   -p, --project=project        project
   -s, --startAt=startAt        index to start at
-  -v, --fixVersion=fixVersion  fix version
+  -v, --fixVersion=fixVersion  fix version (enclosed in quotes)
+
+EXAMPLES
+  $ gj query -v "2018.1"
+  $ gj query -m 10 -s 5
+  $ gj query -p HB
 ```
 
-_See code: [src\commands\query.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.0/src\commands\query.ts)_
+_See code: [src\commands\query.ts](https://github.com/patrickrmoore/gitjira/blob/v0.0.1/src\commands\query.ts)_
 <!-- commandsstop -->
