@@ -1,37 +1,33 @@
-import Axios from "axios";
+import Axios, { AxiosInstance } from "axios";
 import { JiraSearchResponse, JiraSearchParams, JiraIssue } from "./models";
-import config from "./configstore";
-
-const username = config.get("username");
-const password = config.get("password");
-const baseURL = config.get("baseURL");
+import { Config } from "./config";
 
 export default class JiraApi {
-  static axios = Axios.create({
-    auth: {
-      username,
-      password
-    },
-    baseURL: `${baseURL}/rest/api/3/`
-  });
+  public axios: AxiosInstance;
 
-  static async validateConfig() {
+  constructor() {
+    const username = Config.username;
+    const password = Config.password;
+    const baseURL = Config.baseURL;
+
     if (!username || !password || !baseURL) {
       throw new Error(
         `Config must be set before continuing.\nCurrent:\nusername=${username}\npassword=${password}\nbaseURL=${baseURL}`
       );
     }
+    this.axios = Axios.create({
+      auth: { username, password },
+      baseURL: `${baseURL}/rest/api/3/`
+    });
   }
 
-  static async getIssue(key: string) {
-    JiraApi.validateConfig();
-    return await JiraApi.axios.get<JiraIssue>(`issue/${key}`);
+  async getIssue(key: string) {
+    return await this.axios.get<JiraIssue>(`issue/${key}`);
   }
 
-  static async search(params: JiraSearchParams = {}) {
-    JiraApi.validateConfig();
+  async search(params: JiraSearchParams = {}) {
     const formattedParams = JiraApi.formatJiraSearchParams(params);
-    return await JiraApi.axios.get<JiraSearchResponse>("search", {
+    return await this.axios.get<JiraSearchResponse>("search", {
       params: formattedParams
     });
   }

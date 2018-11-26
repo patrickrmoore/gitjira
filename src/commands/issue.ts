@@ -1,6 +1,8 @@
 import { Command, flags } from "@oclif/command";
 import JiraApi from "../JiraApi";
 
+const jiraApi = new JiraApi();
+
 export default class Issue extends Command {
   static description = "Get a single issue";
 
@@ -25,7 +27,7 @@ When a user deletes an item, they should get a confirmation box
     }
 
     try {
-      const response = await JiraApi.getIssue(args.key);
+      const response = await jiraApi.getIssue(args.key);
       this.log(
         `${response.data.key} (Status: ${response.data.fields.status.name})\n${
           response.data.fields.summary

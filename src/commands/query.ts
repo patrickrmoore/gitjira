@@ -1,5 +1,14 @@
 import { Command, flags } from "@oclif/command";
 import JiraApi from "../JiraApi";
+import { Config } from "../config";
+import inquirer = require("inquirer");
+
+enum QueryFlows {
+  default,
+  list
+}
+
+const jiraApi = new JiraApi();
 
 export default class Query extends Command {
   static description = "Query Jira issues";
@@ -25,7 +34,9 @@ export default class Query extends Command {
       char: "f",
       description: "list of fields to return (comma delimited)"
     }),
-    project: flags.string({ char: "p", description: "project" })
+    project: flags.string({ char: "p", description: "project" }),
+    save: flags.string({ description: "Save query" }),
+    list: flags.boolean({ char: "l", description: "List saved queries" })
   };
 
   static args = [{ name: "key" }];
@@ -33,22 +44,58 @@ export default class Query extends Command {
   async run() {
     const { args, flags } = this.parse(Query);
 
-    try {
-      const response = await JiraApi.search({
-        startAt: flags.startAt,
-        maxResults: flags.maxResults,
-        project: flags.project || "HB",
-        fixVersion: flags.fixVersion,
-        fields: flags.fields
-      });
+    const flow = flags.list ? QueryFlows.list : QueryFlows.default;
 
-      const { issues } = response.data;
+    switch (flow) {
+      case QueryFlows.list: {
+        const queries = Config.savedQueries;
+        if (queries.length) {
+          let responses = await inquirer.prompt<{ query: any }>([
+            {
+              name: "query",
+              message: "select a query",
+              type: "list",
+              choices: queries.map(query => ({
+                name: query.name,
+                value: query
+              }))
+            }
+          ]);
+          const response = await jiraApi.search(responses.query.query);
+          console.log({
+            query: responses.query.query,
+            result: JSON.stringify(response.data, null, 2)
+          });
+        }
+        break;
+      }
+      default: {
+        try {
+          const response = await jiraApi.search({
+            startAt: flags.startAt,
+            maxResults: flags.maxResults,
+            project: flags.project,
+            fixVersion: flags.fixVersion,
+            fields: flags.fields
+          });
 
-      issues.forEach(issue => {
-        this.log(JSON.stringify(issue));
-      });
-    } catch (error) {
-      this.error(`${error.name} - ${error.message}`);
+          if (flags.save) {
+            const queries = Config.savedQueries;
+            const { save, list, ...filters } = flags;
+            queries.push({ name: flags.save, query: filters });
+            Config.set("savedQueries", JSON.stringify(queries));
+          }
+
+          const { issues } = response.data;
+
+          issues.forEach(issue => {
+            this.log(JSON.stringify(issue));
+          });
+        } catch (error) {
+          this.error(`${error.name} - ${error.message}`);
+        }
+        break;
+      }
     }
   }
 }
