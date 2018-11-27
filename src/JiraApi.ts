@@ -1,6 +1,7 @@
 import Axios, { AxiosInstance } from "axios";
 import { JiraSearchResponse, JiraSearchParams, JiraIssue } from "./models";
 import { Config } from "./config";
+import cli from "cli-ux";
 
 export default class JiraApi {
   public axios: AxiosInstance;
@@ -26,10 +27,13 @@ export default class JiraApi {
   }
 
   async search(params: JiraSearchParams = {}) {
+    cli.action.start("Querying Jira");
     const formattedParams = JiraApi.formatJiraSearchParams(params);
-    return await this.axios.get<JiraSearchResponse>("search", {
+    const data = await this.axios.get<JiraSearchResponse>("search", {
       params: formattedParams
     });
+    cli.action.stop();
+    return data;
   }
 
   static formatJiraSearchParams(params: JiraSearchParams) {
@@ -57,6 +61,10 @@ export default class JiraApi {
     if (params.jql) {
       jql = JiraApi.appendJqlParam(jql, params.jql, jqlCount);
       jqlCount++;
+    }
+
+    if (params.fields && params.fields.indexOf("summary") === -1) {
+      params.fields += ",summary";
     }
 
     return {

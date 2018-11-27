@@ -2,6 +2,8 @@ import { Command, flags } from "@oclif/command";
 import JiraApi from "../JiraApi";
 import { Config } from "../config";
 import inquirer = require("inquirer");
+import prettyjson = require("prettyjson");
+import { JiraIssue } from "../models";
 
 enum QueryFlows {
   default,
@@ -62,10 +64,7 @@ export default class Query extends Command {
             }
           ]);
           const response = await jiraApi.search(responses.query.query);
-          console.log({
-            query: responses.query.query,
-            result: JSON.stringify(response.data, null, 2)
-          });
+          this.printIssues(response.data.issues);
         }
         break;
       }
@@ -88,14 +87,28 @@ export default class Query extends Command {
 
           const { issues } = response.data;
 
-          issues.forEach(issue => {
-            this.log(JSON.stringify(issue));
-          });
+          this.printIssues(issues);
         } catch (error) {
           this.error(`${error.name} - ${error.message}`);
         }
         break;
       }
     }
+  }
+
+  async printIssues(issues: JiraIssue[]) {
+    const choices = issues.map(issue => ({
+      name: `${issue.key} - ${issue.fields.summary}`,
+      value: issue
+    }));
+    const responses = await inquirer.prompt<{ issue: JiraIssue }>([
+      {
+        name: "issue",
+        message: "select an issue",
+        type: "list",
+        choices
+      }
+    ]);
+    this.log(prettyjson.render(responses.issue));
   }
 }

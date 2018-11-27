@@ -1,5 +1,6 @@
 import { Command, flags } from "@oclif/command";
 import { Config as BaseConfig } from "../config";
+import * as notifier from "node-notifier";
 
 enum ConfigFlows {
   All,
@@ -63,6 +64,10 @@ username=elise.ingram@hcss.com
       }
       case ConfigFlows.Clear: {
         BaseConfig.set("savedQueries", undefined);
+        notifier.notify({
+          title: "Git Jira",
+          message: "Saved Queries Cleared"
+        });
         break;
       }
       case ConfigFlows.Get: {
