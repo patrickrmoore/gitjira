@@ -4,6 +4,8 @@ import { Config } from "../config";
 import inquirer = require("inquirer");
 import prettyjson = require("prettyjson");
 import { JiraIssue } from "../models";
+import nodegit = require("nodegit");
+import * as notifier from "node-notifier";
 
 enum QueryFlows {
   default,
@@ -101,14 +103,42 @@ export default class Query extends Command {
       name: `${issue.key} - ${issue.fields.summary}`,
       value: issue
     }));
-    const responses = await inquirer.prompt<{ issue: JiraIssue }>([
+    const responses = await inquirer.prompt<{
+      issue: JiraIssue;
+      action: "branch" | "detail";
+    }>([
       {
         name: "issue",
         message: "select an issue",
         type: "list",
         choices
+      },
+      {
+        name: "action",
+        message: "Action to take",
+        type: "list",
+        choices: ["branch", "detail"]
       }
     ]);
-    this.log(prettyjson.render(responses.issue));
+
+    if (responses.action === "branch") {
+      const repo = await nodegit.Repository.open(process.cwd());
+      const commit = await repo.getBranchCommit("master");
+      const branch = await nodegit.Branch.create(
+        repo,
+        responses.issue.key,
+        commit,
+        0
+      );
+      await repo.checkoutBranch(branch);
+      notifier.notify({
+        title: "Switched to new branch",
+        message: responses.issue.key
+      });
+    }
+
+    if (responses.action === "detail") {
+      this.log(prettyjson.render(responses.issue));
+    }
   }
 }
