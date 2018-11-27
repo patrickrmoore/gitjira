@@ -124,16 +124,17 @@ export default class Query extends Command {
     if (responses.action === "branch") {
       const repo = await nodegit.Repository.open(process.cwd());
       const commit = await repo.getBranchCommit("master");
-      const branch = await nodegit.Branch.create(
-        repo,
-        responses.issue.key,
-        commit,
-        0
-      );
+
+      const branchName = `${responses.issue.fields.issuetype.name}/${
+        responses.issue.key
+      }`
+        .split(" ")
+        .join("-");
+      const branch = await nodegit.Branch.create(repo, branchName, commit, 0);
       await repo.checkoutBranch(branch);
       notifier.notify({
         title: "Switched to new branch",
-        message: responses.issue.key
+        message: branchName
       });
     }
 
